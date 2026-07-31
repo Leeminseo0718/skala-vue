@@ -53,8 +53,3 @@ npm run dev
 - VS Code + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) 확장 (Vetur 는 비활성화)
 - Chrome [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
 - Vite 설정: [Vite Configuration Reference](https://vite.dev/config/)
-
-## 참고
-
-- 강의 PDF 등 SK AX 저작물은 `.gitignore` 로 제외되어 있습니다.
-- 3일차 OpenWeatherMap API Key 는 `.env` 로 분리하며, 저장소에 올라가지 않습니다.
