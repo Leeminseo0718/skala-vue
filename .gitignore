@@ -1,0 +1,50 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+# Vite
+*.timestamp-*-*.mjs
+
+# 강의 자료 (SK AX 저작물 - Public 저장소에 올리면 안 됨)
+*.pdf
+
+# Claude Code 로컬 설정 (개인 경로가 담겨 있어 제외)
+.claude
+
+# 환경 변수 (3일차 OpenWeatherMap API Key)
+.env
+.env.local
+.env.*.local

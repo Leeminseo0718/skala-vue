@@ -1,0 +1,38 @@
+/*
+ * 프로젝트 전역 스타일 (main.js 에서 import)
+ *
+ * create-vue 기본 main.css 는 1024px 이상에서 #app 을 2단 grid 로 쪼개고
+ * body 를 flex 로 세로 중앙 정렬해 버려서, 대시보드 한 덩어리를 올리기에 맞지 않았다.
+ * 그래서 기본 템플릿 대신 대시보드용으로 새로 작성했다.
+ * (base.css 의 다크모드 변수도 카드 색과 충돌해서 import 하지 않는다.)
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0 16px;
+  min-height: 100vh;
+  background-color: #eef1f5;
+  color: #2c3e50;
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  width: 100%;
+}
