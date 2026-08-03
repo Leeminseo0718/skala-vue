@@ -1,7 +1,7 @@
 <script setup>
 // 아직 Router 없이 대시보드 하나만 붙여서 확인한다.
 // (Navigation Bar / RouterView 배치는 3일차 Router 단계에서 추가할 예정)
-import WeatherDashboard from '@/components/exercise/WeatherDashboard.vue'
+import WeatherParent from '@/components/exercise/WeatherParent.vue'
 </script>
 
 <template>
@@ -12,7 +12,7 @@ import WeatherDashboard from '@/components/exercise/WeatherDashboard.vue'
       <p class="lead">배운 내용을 매일 이 화면 하나에 이어 붙여 가며 키우는 종합과제입니다.</p>
     </header>
 
-    <WeatherDashboard />
+    <WeatherParent />
 
     <footer class="app-footer">Vue 3 · Vite</footer>
   </div>

@@ -12,19 +12,19 @@ npm run dev
 
 기본 주소: http://localhost:5173
 
-| 명령어 | 설명 |
-| --- | --- |
-| `npm run dev` | 로컬 개발 서버 (HMR) |
-| `npm run build` | `dist/` 에 배포용 정적 파일 생성 |
-| `npm run preview` | 빌드 결과물 미리보기 |
-| `npm run lint` | oxlint + ESLint 검사 및 자동 수정 |
-| `npm run format` | Prettier 코드 정렬 |
+| 명령어            | 설명                              |
+| ----------------- | --------------------------------- |
+| `npm run dev`     | 로컬 개발 서버 (HMR)              |
+| `npm run build`   | `dist/` 에 배포용 정적 파일 생성  |
+| `npm run preview` | 빌드 결과물 미리보기              |
+| `npm run lint`    | oxlint + ESLint 검사 및 자동 수정 |
+| `npm run format`  | Prettier 코드 정렬                |
 
 ## 진행 상황
 
 - [x] **1단계 — 날씨 Mockup** (Vue 문법)
 - [x] **2단계 — 컴포지션** (Composition API)
-- [ ] 3단계 — 컴포넌트 분리
+- [x] **3단계 — 컴포넌트 분리** (props · emits · slot)
 - [ ] 4단계 — Router · Pinia · Axios
 - [ ] 마무리 — Element Plus · Modern JS · 빌드/배포
 
@@ -33,32 +33,53 @@ npm run dev
 
 ```
 src/
-├── App.vue                              # 대시보드를 얹는 껍데기
-├── assets/main.css                      # 전역 색 팔레트 (:root 변수)
+├── App.vue                        # 대시보드를 얹는 껍데기
+├── assets/main.css                # 전역 색 팔레트 (:root 변수)
 └── components/exercise/
-    └── WeatherDashboard.vue             # 종합과제 본체
+    ├── WeatherParent.vue          # 종합과제 본체 — 반응형 데이터와 로직 전부 보유
+    ├── BaseDashboardCard.vue      #   └ 공통 패널 (기본 슬롯 + head-meta 슬롯)
+    ├── SearchBar.vue              #   └ 검색 입력 (props + emits)
+    └── WeatherCard.vue            #   └ 날씨 카드 (props + emits)
 ```
 
 ## 구현 내용
 
 ### 1단계 — Vue 문법
 
-| 요구사항 | 구현 |
-| --- | --- |
-| 배열 렌더링 | `v-for="city in filteredWeatherList"` + `:key="city.id"` |
-| 조건부 렌더링 | `v-if` / `v-else` 로 25도 기준 `🔥 더움` · `❄️ 선선함` 뱃지 분기 |
-| 양방향 바인딩 | `v-model` 없이 `:value` + `@input` 으로 직접 구현 |
+| 요구사항        | 구현                                                                |
+| --------------- | ------------------------------------------------------------------- |
+| 배열 렌더링     | `v-for="city in filteredWeatherList"` + `:key="city.id"`            |
+| 조건부 렌더링   | `v-if` / `v-else` 로 25도 기준 `🔥 더움` · `❄️ 선선함` 뱃지 분기    |
+| 양방향 바인딩   | `v-model` 없이 `:value` + `@input` 으로 직접 구현                   |
 | 이벤트 · 수식어 | 카드 클릭 → 상태바 갱신 / `@click.stop` 으로 [상세보기] 버블링 차단 |
 
 ### 2단계 — Composition API
 
-| 요구사항 | 구현 |
+| 요구사항        | 구현                                                     |
+| --------------- | -------------------------------------------------------- |
+| 반응형 상태 3종 | `searchQuery` · `selectedCityInfo` · `weatherList`       |
+| computed        | `filteredWeatherList` — 검색어가 도시 이름에 포함된 것만 |
+| watch           | `selectedCityInfo` 감시 → 이전/이후 값을 콘솔 로그       |
+| watchEffect     | `searchQuery` 자동 추적 → 검색어와 결과 건수를 콘솔 로그 |
+| 검색 결과 표시  | 비었으면 원본 / 일치하면 결과 / 없으면 안내 문구         |
+
+### 3단계 — 컴포넌트 분리
+
+기능은 2단계와 **완전히 동일**하고, 화면만 4개 파일로 쪼갠 단계.
+
+| 파일 | 역할 |
 | --- | --- |
-| 반응형 상태 3종 | `searchQuery` · `selectedCityInfo` · `weatherList` |
-| computed | `filteredWeatherList` — 검색어가 도시 이름에 포함된 것만 |
-| watch | `selectedCityInfo` 감시 → 이전/이후 값을 콘솔 로그 |
-| watchEffect | `searchQuery` 자동 추적 → 검색어와 결과 건수를 콘솔 로그 |
-| 검색 결과 표시 | 비었으면 원본 / 일치하면 결과 / 없으면 안내 문구 |
+| `WeatherParent.vue` | 반응형 데이터와 로직을 전부 보유 |
+| `BaseDashboardCard.vue` | 검색박스·리스트박스 공통 패널, 기본 슬롯 + 이름 있는 슬롯(`head-meta`) |
+| `SearchBar.vue` | props `query` 수신 / `update-query` emit |
+| `WeatherCard.vue` | props `cityItem` 수신 / `select-card` · `click-detail` emit |
+
+각 컴포넌트의 디자인은 해당 파일의 `<style scoped>` 로 옮겼고,
+`WeatherParent` 에는 배치와 부모가 직접 그리는 요소(상태바·안내문)만 남겼다.
+
+`SearchBar` / `WeatherCard` 는 눈으로 보기엔 `BaseDashboardCard` 안에 있지만,
+슬롯 콘텐츠는 넘겨준 쪽(부모)의 스코프에서 컴파일되기 때문에
+부모의 `searchQuery` · `filteredWeatherList` 를 그대로 바인딩할 수 있다.
 
 ### 추가로 해본 것
 
@@ -68,6 +89,8 @@ src/
   뱃지를 띄워 동작을 눈으로 확인할 수 있게 했다.
   검색 결과가 없을 때도 조합 중이면 `한글을 입력하는 중입니다…` 로 문구를 바꿔,
   아직 완성되지 않은 자음(`ㄷ`)에 "일치하는 도시가 없습니다" 경고가 튀지 않게 했다.
+  컴포넌트를 쪼갠 뒤에도 조합 상태는 `SearchBar` 안에 가둬 두고 `composing-change` 로만
+  올려 보내, 입력창의 사정이 부모로 새어 나가지 않게 했다.
 - **`watch` vs `watchEffect` 차이를 로그로 드러냄** — `watch` 는 이전/이후 값을 같이 찍고,
   `watchEffect` 는 마운트 직후 한 번 자동 실행되는 게 콘솔에서 그대로 보인다.
 - **`.enter` 키 수식어** — 검색창에서 Enter 를 누르면 상태바에 검색 문구를 남긴다.
