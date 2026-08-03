@@ -4,8 +4,56 @@
  * create-vue 기본 main.css 는 1024px 이상에서 #app 을 2단 grid 로 쪼개고
  * body 를 flex 로 세로 중앙 정렬해 버려서, 대시보드 한 덩어리를 올리기에 맞지 않았다.
  * 그래서 기본 템플릿 대신 대시보드용으로 새로 작성했다.
- * (base.css 의 다크모드 변수도 카드 색과 충돌해서 import 하지 않는다.)
+ * (base.css 의 다크모드 변수도 아래 팔레트와 충돌해서 import 하지 않는다.)
+ *
+ * 컨셉: '맑은 하늘' — 기조색 #BFD7FF 를 배경으로 깔고, 그 위에 반투명 흰 판과
+ * 흰 카드를 얹어 깊이를 만들었다. 색은 CSS 변수로 한곳에 모아
+ * 2일차 컴포넌트 분리 때 각 파일에서 그대로 꺼내 쓸 수 있게 했다.
  */
+
+:root {
+  /* 배경 — 기조색 #BFD7FF 계열 */
+  --sky-base: #bfd7ff;
+  --sky-light: #d8e6ff;
+  --sky-deep: #a8c6fa;
+
+  /* 표면 (반투명 흰 판 / 흰 카드) */
+  --surface: rgba(255, 255, 255, 0.62);
+  --surface-line: rgba(255, 255, 255, 0.85);
+  --card: #ffffff;
+  --line: #dbe6f8;
+  --line-strong: #bcd0ee;
+
+  /* 그림자 — 남색 기운을 섞어 배경과 겉돌지 않게 */
+  --shadow-sm: 0 1px 3px rgba(30, 58, 110, 0.06);
+  --shadow-md: 0 6px 22px rgba(30, 58, 110, 0.1);
+  --shadow-lg: 0 10px 34px rgba(30, 58, 110, 0.13);
+
+  /* 글자 — 밝은 하늘색 배경이라 회색을 옅게 쓰면 대비가 바로 무너진다.
+     WCAG AA(본문 4.5:1)를 넘기도록 값을 잡았고, '흰 카드 위'와
+     '하늘색 배경 위'는 필요한 진하기가 달라서 변수를 나눴다. */
+  --ink: #1e293b; /* 제목·본문 (흰 면 위) */
+  --ink-dim: #55637d; /* 보조 텍스트 (흰 면 위) */
+  --ink-placeholder: #6b7789; /* 입력창 안내 문구 */
+  --ink-on-sky: #46526a; /* 흰 판 없이 배경에 직접 얹히는 텍스트 */
+
+  /* 강조색 — 더움은 주황, 선선함은 파랑 */
+  --hot: #e8590c;
+  --hot-ink: #c2410c;
+  --hot-bg: #fff2e8;
+  --hot-line: #ffd6b5;
+
+  --cool: #1971c2;
+  --cool-ink: #175a9e;
+  --cool-bg: #e8f3ff;
+  --cool-line: #c2dbf7;
+
+  /* 포커스 / 상태바 */
+  --accent: #3b6fd4;
+  --accent-ink: #1e4fa8;
+  --accent-bg: #e4edff;
+  --accent-line: #c4d8f8;
+}
 
 *,
 *::before,
@@ -15,10 +63,14 @@
 
 body {
   margin: 0;
-  padding: 0 16px;
+  padding: 0 16px 64px;
   min-height: 100vh;
-  background-color: #eef1f5;
-  color: #2c3e50;
+  background:
+    radial-gradient(880px 520px at 8% -12%, rgba(255, 255, 255, 0.72), transparent 62%),
+    radial-gradient(760px 460px at 94% 0%, var(--sky-light), transparent 58%),
+    linear-gradient(172deg, var(--sky-light) 0%, var(--sky-base) 46%, var(--sky-deep) 100%);
+  background-attachment: fixed;
+  color: var(--ink);
   font-family:
     'Pretendard',
     -apple-system,
