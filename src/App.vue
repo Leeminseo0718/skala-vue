@@ -1,7 +1,7 @@
 <script setup>
-// 1일차는 Router 없이 과제 컴포넌트만 붙여서 확인한다.
+// 아직 Router 없이 대시보드 하나만 붙여서 확인한다.
 // (Navigation Bar / RouterView 배치는 3일차 Router 단계에서 추가할 예정)
-import WeatherMockup from '@/components/exercise/WeatherMockup.vue'
+import WeatherDashboard from '@/components/exercise/WeatherDashboard.vue'
 </script>
 
 <template>
@@ -9,15 +9,12 @@ import WeatherMockup from '@/components/exercise/WeatherMockup.vue'
     <header class="app-header">
       <p class="eyebrow">SKALA · Full-Stack Engineering</p>
       <h1>날씨 관측 대시보드</h1>
-      <p class="subtitle">
-        <span class="tag">1일차</span>
-        v-for · v-if · :value+@input · 이벤트 수식어
-      </p>
+      <p class="lead">배운 내용을 매일 이 화면 하나에 이어 붙여 가며 키우는 종합과제입니다.</p>
     </header>
 
-    <WeatherMockup />
+    <WeatherDashboard />
 
-    <footer class="app-footer">Vue 3 · Vite — 매일 이어서 키워 나가는 종합과제</footer>
+    <footer class="app-footer">Vue 3 · Vite</footer>
   </div>
 </template>
 
@@ -51,23 +48,11 @@ import WeatherMockup from '@/components/exercise/WeatherMockup.vue'
   color: var(--ink);
 }
 
-.subtitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.lead {
   margin: 10px 0 0;
   font-size: 13px;
+  line-height: 1.7;
   color: var(--ink-on-sky);
-}
-
-.tag {
-  padding: 3px 10px;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid var(--accent-line);
-  color: var(--accent-ink);
 }
 
 .app-footer {
