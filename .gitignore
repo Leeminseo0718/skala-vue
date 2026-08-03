@@ -38,8 +38,6 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 
-# 강의 자료 (SK AX 저작물 - Public 저장소에 올리면 안 됨)
-*.pdf
 
 # Claude Code 로컬 설정 (개인 경로가 담겨 있어 제외)
 .claude
