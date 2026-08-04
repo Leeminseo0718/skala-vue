@@ -4,7 +4,7 @@
  * create-vue 기본 main.css 는 1024px 이상에서 #app 을 2단 grid 로 쪼개고
  * body 를 flex 로 세로 중앙 정렬해 버려서, 대시보드 한 덩어리를 올리기에 맞지 않았다.
  * 그래서 기본 템플릿 대신 대시보드용으로 새로 작성했다.
- * (base.css 의 다크모드 변수도 아래 팔레트와 충돌해서 import 하지 않는다.)
+ * (create-vue 가 넣어 주는 base.css 는 다크모드 변수가 이 팔레트와 충돌해서 아예 지웠다.)
  *
  * 컨셉: '맑은 하늘' — 기조색 #BFD7FF 를 배경으로 깔고, 그 위에 반투명 흰 판과
  * 흰 카드를 얹어 깊이를 만들었다. 색은 CSS 변수로 한곳에 모아
@@ -47,6 +47,12 @@
   --cool-ink: #175a9e;
   --cool-bg: #e8f3ff;
   --cool-line: #c2dbf7;
+
+  /* 즐겨찾기 별 — 강조색(파랑)과 겹치지 않게 따로 잡았다 */
+  --star: #e0a325;
+  --star-ink: #9a6b05;
+  --star-bg: #fff6e0;
+  --star-line: #f2dcae;
 
   /* 포커스 / 상태바 */
   --accent: #3b6fd4;

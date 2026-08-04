@@ -5,11 +5,13 @@ import { computed } from 'vue'
  * WeatherCard.vue — 도시 하나를 그리는 카드 (3단계)
  *
  *  - props : 도시 객체를 통째로 받아서 표시 (cityItem)
- *  - emits : select-card  (카드 본체 클릭)
- *            click-detail (상세보기 버튼 클릭)
+ *            즐겨찾기 여부 (isFavorite)
+ *  - emits : select-card     (카드 본체 클릭)
+ *            click-detail    (상세보기 버튼 클릭)
+ *            toggle-favorite (별 버튼 클릭)
  *
  * 카드는 "받은 걸 그리고, 눌린 걸 알리는" 역할만 한다.
- * 무슨 문구를 띄울지 · 어떤 도시가 선택됐는지 기억하는 건 전부 부모 몫이다.
+ * 즐겨찾기 목록을 누가 들고 있는지도 카드는 모른다. 부모가 판단해서 결과만 내려 준다.
  */
 const props = defineProps({
   cityItem: {
@@ -21,9 +23,14 @@ const props = defineProps({
     type: Number,
     default: 25,
   },
+  // 이 도시가 즐겨찾기에 들어 있는지 — 판단은 부모가 하고 결과만 받는다
+  isFavorite: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['select-card', 'click-detail'])
+const emit = defineEmits(['select-card', 'click-detail', 'toggle-favorite'])
 
 // 기준 비교를 template 에서 두 번 쓰게 되어 computed 로 한 번만 계산한다.
 const isHot = computed(() => props.cityItem.temp >= props.hotTemp)
@@ -36,14 +43,31 @@ const handleSelect = () => {
 const handleDetail = () => {
   emit('click-detail', props.cityItem)
 }
+
+const handleToggleFavorite = () => {
+  emit('toggle-favorite', props.cityItem)
+}
 </script>
 
 <template>
   <li class="weather-card" :class="isHot ? 'is-hot' : 'is-cool'" @click="handleSelect">
-    <!-- 윗줄: 도시명·날씨 상태 (왼쪽) / 기온을 크게 (오른쪽) -->
+    <!-- 윗줄: 즐겨찾기 별 · 도시명·날씨 상태 (왼쪽) / 기온을 크게 (오른쪽) -->
     <div class="card-top">
       <div class="card-title">
-        <h4>{{ cityItem.name }}</h4>
+        <div class="title-row">
+          <!-- .stop 으로 카드 선택(select-card)과 겹치지 않게 막는다.
+               :class 로 켜짐/꺼짐 상태를 색과 채운 별/빈 별로 동시에 표현한다. -->
+          <button
+            class="btn-favorite"
+            :class="{ 'is-on': isFavorite }"
+            :aria-pressed="isFavorite"
+            :title="isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'"
+            @click.stop="handleToggleFavorite"
+          >
+            {{ isFavorite ? '★' : '☆' }}
+          </button>
+          <h4>{{ cityItem.name }}</h4>
+        </div>
         <p>{{ cityItem.status }}</p>
       </div>
       <p class="card-temp">{{ cityItem.temp }}<span class="unit">°C</span></p>
@@ -91,6 +115,12 @@ const handleDetail = () => {
   gap: 16px;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .card-title h4 {
   margin: 0;
   font-size: 1.05rem;
@@ -100,8 +130,40 @@ const handleDetail = () => {
 
 .card-title p {
   margin: 2px 0 0;
+  /* 별 버튼 너비(18px) + gap(8px) 만큼 밀어 도시명과 왼쪽을 맞춘다 */
+  padding-left: 26px;
   font-size: 12px;
   color: var(--ink-dim);
+}
+
+/* ── 즐겨찾기 별 ───────────────────────────────────────── */
+.btn-favorite {
+  flex-shrink: 0;
+  width: 18px;
+  padding: 0;
+  font-size: 17px;
+  line-height: 1;
+  font-family: inherit;
+  color: var(--ink-placeholder);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-favorite:hover {
+  color: var(--star);
+}
+
+/* 켜진 상태는 색으로도 한 번 더 구분한다 */
+.btn-favorite.is-on {
+  color: var(--star);
+}
+
+.btn-favorite:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* 기온을 카드에서 가장 크게 — 한눈에 읽히는 게 대시보드의 핵심 */
