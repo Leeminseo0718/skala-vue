@@ -234,11 +234,6 @@ const goBack = () => {
         <div class="stage-fade" aria-hidden="true"></div>
 
         <div class="stage-body">
-          <!-- 내비게이션이 없는 화면이라 돌아가는 길을 맨 위에 둔다 -->
-          <button class="btn-top-back" @click="goBack">
-            <span aria-hidden="true">←</span> 목록
-          </button>
-
           <!-- ── 상단 요약 ── -->
           <header class="hero">
             <p class="place"><span aria-hidden="true">📍</span> {{ city.name }}</p>
@@ -405,21 +400,6 @@ const goBack = () => {
   min-height: 100vh;
   margin: 0 auto;
   padding: 22px 4px 48px;
-}
-
-/* ── 목록으로 (상단) ───────────────────────────────────── */
-.btn-top-back {
-  align-self: flex-start;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.2s ease;
 }
 
 .btn-top-back:hover {
