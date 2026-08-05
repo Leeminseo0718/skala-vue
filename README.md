@@ -6,6 +6,9 @@ SKALA Full-Stack Engineering · **Frontend framework: Vue.js** 종합과제입�
 국내 6개 지역의 **실시간 날씨**를 OpenWeatherMap API로 받아 보여 주고,
 지역을 고르면 그 지역 랜드마크 사진이 화면을 가득 채우는 상세 화면으로 이동합니다.
 
+- **저장소** — https://github.com/Leeminseo0718/skala-vue
+- **배포 링크** — https://skala-kd28h6xxy-minseo9.vercel.app
+
 | 홈 (지역별 날씨) | 상세 (몰입 화면) |
 | --- | --- |
 | ![홈 화면](docs/screenshots/01-홈-지역별-날씨.png) | ![상세 화면](docs/screenshots/02-상세-몰입화면.png) |
