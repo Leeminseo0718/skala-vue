@@ -88,7 +88,7 @@ npm run dev
 | 7. Axios | `api/weather.js` (로딩·에러 처리 포함) |
 | 8. UI 라이브러리 | Element Plus — `el-select`, `el-alert`, `el-empty` |
 | 9. Modern JS | 구조분해, 전개, 옵셔널 체이닝, 널 병합, 템플릿 리터럴 |
-| 10. Vite 빌드·배포 | `base` 경로 설정, `.env` 분리, GitHub Actions 자동 배포 |
+| 10. Vite 빌드·배포 | `base` 경로 설정, `.env` 분리, Vercel 자동 배포 (`vercel.json`) |
 
 ---
 
@@ -192,15 +192,25 @@ DOM 은 멀쩡한데(hit-test 도 잡힘) 페인트만 실패하는 형태였습
 
 ---
 
-## 배포
+## 배포 (Vercel)
 
-GitHub Actions 로 `main` 브랜치에 푸시될 때마다 자동 배포됩니다. (`.github/workflows/deploy.yml`)
+`main` 브랜치에 푸시하면 Vercel 이 자동으로 빌드해서 올립니다.
 
-- **base 경로**: GitHub Pages 는 하위 경로(`/skala-vue/`)로 서비스되므로,
-  `vite.config.js` 에서 배포 빌드에만 `base` 를 붙였습니다. 이 설정이 없으면 흰 화면이 뜹니다.
-- **SPA 새로고침**: `index.html` 을 `404.html` 로 복사해, `/weather/city_01` 같은 주소를
-  직접 열거나 새로고침해도 라우터가 받게 했습니다.
-- **API 키**: 저장소 Secret(`VITE_OPENWEATHER_API_KEY`)에서 주입합니다.
+**설정할 것**
+
+1. [vercel.com](https://vercel.com) → Add New Project → 이 저장소 Import
+   (Framework Preset 은 **Vite** 로 자동 인식됩니다)
+2. Environment Variables 에 `VITE_OPENWEATHER_API_KEY` 추가
+3. Deploy
+
+**빌드가 흰 화면으로 뜨지 않게 잡아 둔 것**
+
+- **base 경로** — Vercel 은 도메인 루트로 서비스하므로 `vite.config.js` 의 `base` 를 `/` 로 둡니다.
+  (GitHub Pages 처럼 하위 경로 `/저장소이름/` 에 올릴 때는 이 값을 바꿔야 합니다.
+  안 맞추면 빌드된 JS·CSS 를 못 찾아 화면이 하얗게 뜹니다.)
+- **SPA 새로고침** — `vercel.json` 의 `rewrites` 로 모든 경로를 `index.html` 로 넘깁니다.
+  이게 없으면 `/weather/city_01` 을 직접 열거나 새로고침할 때 서버가 그 이름의 파일을
+  찾다가 404 를 냅니다. 실제 경로 판단은 Vue Router 가 합니다.
 
 > ⚠️ Vite 는 `VITE_` 로 시작하는 값을 빌드 시 번들에 그대로 박아 넣습니다.
 > `.env` 를 Git 에 올리지 않아도 배포된 사이트에서는 키가 보입니다.
