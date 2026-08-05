@@ -7,7 +7,7 @@ SKALA Full-Stack Engineering · **Frontend framework: Vue.js** 종합과제입�
 지역을 고르면 그 지역 랜드마크 사진이 화면을 가득 채우는 상세 화면으로 이동합니다.
 
 - **저장소** — https://github.com/Leeminseo0718/skala-vue
-- **배포 링크** — https://skala-kd28h6xxy-minseo9.vercel.app
+- **배포 링크** — https://skala-vue-tawny.vercel.app
 
 | 홈 (지역별 날씨) | 상세 (몰입 화면) |
 | --- | --- |
