@@ -22,11 +22,6 @@ const routes = [
     component: () => import('@/views/FavoriteView.vue'),
   },
   {
-    path: '/about',
-    name: 'WeatherAbout',
-    component: () => import('@/views/WeatherAboutView.vue'),
-  },
-  {
     // 동적 경로 매칭 — :cityId 자리에 들어온 값이 route.params.cityId 로 넘어온다
     path: '/weather/:cityId',
     name: 'WeatherDetail',

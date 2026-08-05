@@ -221,7 +221,10 @@ const goBack = () => {
 
     <template v-else>
       <div class="stage" :class="{ 'no-photo': !landmarkUrl }" :style="parallaxStyle">
-        <!-- 배경: 사진은 별도 레이어라 글자는 안 흔들린다 -->
+        <!--
+          배경은 position:fixed 라 부모의 폭·여백을 벗어나 화면 전체를 덮는다.
+          사진은 별도 레이어라 스크롤해도 그대로 있고, 글자는 안 흔들린다.
+        -->
         <div
           v-if="landmarkUrl"
           class="stage-photo"
@@ -231,6 +234,11 @@ const goBack = () => {
         <div class="stage-fade" aria-hidden="true"></div>
 
         <div class="stage-body">
+          <!-- 내비게이션이 없는 화면이라 돌아가는 길을 맨 위에 둔다 -->
+          <button class="btn-top-back" @click="goBack">
+            <span aria-hidden="true">←</span> 목록
+          </button>
+
           <!-- ── 상단 요약 ── -->
           <header class="hero">
             <p class="place"><span aria-hidden="true">📍</span> {{ city.name }}</p>
@@ -336,22 +344,22 @@ const goBack = () => {
 </template>
 
 <style scoped>
-/* ── 사진이 깔린 무대 ───────────────────────────────────── */
+/* ── 사진이 깔린 무대 (화면 전체) ────────────────────────── */
 .stage {
   position: relative;
-  overflow: hidden;
-  border-radius: 22px;
-  box-shadow: var(--shadow-lg);
+  min-height: 100vh;
   isolation: isolate;
 }
 
 /**
- * 사진 레이어를 판보다 크게 잡아 두고 커서 값만큼 민다.
- * 여유분이 있어야 밀렸을 때 가장자리에 빈 곳이 안 생긴다.
+ * 사진과 그라데이션은 position:fixed 라 조상의 폭·여백을 무시하고 화면 전체를 덮는다.
+ * (부모에 transform·filter 가 걸리면 fixed 기준이 그쪽으로 바뀌므로,
+ *  움직이는 transform 은 이 사진 레이어에만 두고 조상에는 두지 않는다.)
+ * inset 을 음수로 줘 여유분을 확보해야 커서를 따라 밀렸을 때 가장자리가 안 비고,
  * translate3d 는 GPU 합성 레이어로 올라가 움직임이 부드럽다.
  */
 .stage-photo {
-  position: absolute;
+  position: fixed;
   inset: -4%;
   background-size: cover;
   background-position: center;
@@ -362,15 +370,19 @@ const goBack = () => {
 }
 
 /* 위는 사진을 살리고, 아래로 갈수록 짙은 청록으로 덮어 글자가 읽히게 한다 */
+/*
+ * 사진 위에 흰 글자를 얹으므로 전체를 고르게 덮어야 한다.
+ * 배경이 고정이라 스크롤해도 밝은 구간으로 글자가 넘어가는 일이 없어야 해서,
+ * 위아래 편차를 크게 두지 않고 전 구간을 어둡게 깔았다.
+ */
 .stage-fade {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(10, 40, 60, 0.1) 0%,
-    rgba(12, 58, 74, 0.42) 32%,
-    rgba(16, 74, 82, 0.82) 58%,
-    rgba(18, 82, 84, 0.94) 100%
+    rgba(8, 32, 50, 0.3) 0%,
+    rgba(10, 48, 64, 0.55) 40%,
+    rgba(14, 66, 76, 0.8) 100%
   );
   z-index: -1;
 }
@@ -384,17 +396,40 @@ const goBack = () => {
   display: none;
 }
 
+/* 배경은 화면 전체를 쓰되, 글은 읽기 좋은 폭으로 가운데 모은다 */
 .stage-body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 26px 20px 22px;
+  max-width: 620px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 22px 4px 48px;
+}
+
+/* ── 목록으로 (상단) ───────────────────────────────────── */
+.btn-top-back {
+  align-self: flex-start;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-top-back:hover {
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* ── 상단 요약 ─────────────────────────────────────────── */
 .hero {
   /* 사진이 충분히 보이도록 요약 위쪽에 여백을 크게 준다 */
-  padding: 4px 4px 26px;
+  padding: 40px 4px 26px;
   color: #fff;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.34);
 }

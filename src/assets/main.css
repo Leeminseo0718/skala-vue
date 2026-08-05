@@ -37,11 +37,11 @@
   --ink-placeholder: #6b7789; /* 입력창 안내 문구 */
   --ink-on-sky: #46526a; /* 흰 판 없이 배경에 직접 얹히는 텍스트 */
 
-  /* 강조색 — 더움은 주황, 선선함은 파랑 */
-  --hot: #e8590c;
-  --hot-ink: #c2410c;
-  --hot-bg: #fff2e8;
-  --hot-line: #ffd6b5;
+  /* 강조색 — 더움은 붉은색, 선선함은 파랑 */
+  --hot: #dc2626;
+  --hot-ink: #a81919;
+  --hot-bg: #fff1f0;
+  --hot-line: #ffcbc4;
 
   --cool: #1971c2;
   --cool-ink: #175a9e;

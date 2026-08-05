@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 import SearchBar from '@/components/exercise/SearchBar.vue'
 import WeatherCard from '@/components/exercise/WeatherCard.vue'
-import { weatherList as mockWeatherList, HOT_TEMP } from '@/data/weatherMock'
+import { weatherList as mockWeatherList, HOT_TEMP, BLAZE_TEMP } from '@/data/weatherMock'
 import { fetchWeatherForCities, hasApiKey } from '@/api/weather'
 import { useFavoriteStore } from '@/stores/favoriteStore'
 
@@ -32,6 +32,11 @@ const favoriteStore = useFavoriteStore()
 // ── 반응형 상태 3종 ────────────────────────────────────────
 const weatherList = ref(mockWeatherList)
 const searchQuery = ref('')
+/**
+ * 어떤 도시를 골랐는지 · 무엇으로 검색했는지 기록하는 값.
+ * 화면 아래 상태바로 보여 주다가 지웠고, 지금은 watch 로 콘솔에만 남긴다.
+ * (카드를 눌렀을 때 무슨 일이 일어났는지 개발자 도구에서 추적하는 용도)
+ */
 const selectedCityInfo = ref('카드를 클릭하거나 도시를 검색해 보세요.')
 
 // SearchBar 가 composing-change 로 올려 주는 한글 조합 상태
@@ -237,13 +242,15 @@ const handleToggleFavorite = (city) => {
         <template v-else>'{{ searchQuery.trim() }}' 와 일치하는 도시가 없습니다.</template>
       </p>
 
-      <!-- 검색 → 정렬을 거친 최종 목록 -->
+      <!-- 검색 → 정렬을 거친 최종 목록.
+           카드가 가로로 넘어가므로 이 컨테이너 안에서만 옆으로 스크롤된다. -->
       <ul v-else class="card-list">
         <WeatherCard
           v-for="city in sortedWeatherList"
           :key="city.id"
           :city-item="city"
           :hot-temp="HOT_TEMP"
+          :blaze-temp="BLAZE_TEMP"
           :is-favorite="favoriteStore.isFavorite(city.id)"
           @select-card="handleSelectCard"
           @click-detail="handleClickDetail"
@@ -251,11 +258,6 @@ const handleToggleFavorite = (city) => {
         />
       </ul>
     </BaseDashboardCard>
-
-    <p class="status-bar">
-      <span class="status-dot" aria-hidden="true"></span>
-      {{ selectedCityInfo }}
-    </p>
   </div>
 </template>
 
@@ -337,36 +339,20 @@ const handleToggleFavorite = (city) => {
   border-radius: 14px;
 }
 
+/*
+ * 카드를 세로로 쌓지 않고 가로로 늘어놓는다.
+ * 옆으로 넘치는 건 이 컨테이너 안에서만 스크롤시켜야 페이지 본문이 같이 밀리지 않는다.
+ * scroll-snap 을 걸어 두면 스크롤이 카드 경계에서 자연스럽게 멈춘다.
+ */
 .card-list {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
-  padding: 0;
+  /* 아래 여백은 카드 hover 시 떠오르는 그림자가 잘리지 않게 준 것 */
+  padding: 4px 2px 12px;
   list-style: none;
-}
-
-.status-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  padding: 14px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent-ink);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid var(--surface-line);
-  border-radius: 14px;
-  box-shadow: var(--shadow-md);
-}
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(59, 111, 212, 0.16);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
 }
 </style>

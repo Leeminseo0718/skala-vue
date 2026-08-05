@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 import WeatherCard from '@/components/exercise/WeatherCard.vue'
-import { weatherList as mockWeatherList, HOT_TEMP } from '@/data/weatherMock'
+import { weatherList as mockWeatherList, HOT_TEMP, BLAZE_TEMP } from '@/data/weatherMock'
 import { fetchWeatherForCities, hasApiKey } from '@/api/weather'
 import { useFavoriteStore } from '@/stores/favoriteStore'
 
@@ -18,7 +18,6 @@ const favoriteStore = useFavoriteStore()
 
 // 전체 도시 목록(날씨는 아래에서 덮어쓴다)
 const weatherList = ref(mockWeatherList)
-const statusInfo = ref('즐겨찾기한 지역의 날씨입니다.')
 const isLoading = ref(false)
 const apiErrorMessage = ref('')
 
@@ -86,8 +85,9 @@ const loadWeather = async () => {
 onMounted(loadWeather)
 
 // ── 카드 이벤트 ────────────────────────────────────────────
+// 상태바를 없애서 화면에 남길 문구는 없고, 무슨 일이 일어났는지는 콘솔로만 남긴다
 const handleSelectCard = (city) => {
-  statusInfo.value = `${city.name}이 선택되었습니다.`
+  console.log(`[FavoriteView] ${city.name} 카드 선택`)
 }
 
 const handleClickDetail = (city) => {
@@ -96,9 +96,7 @@ const handleClickDetail = (city) => {
 
 const handleToggleFavorite = (city) => {
   const added = favoriteStore.toggle(city.id)
-  statusInfo.value = added
-    ? `${city.name}을(를) 즐겨찾기에 담았습니다.`
-    : `${city.name}을(를) 즐겨찾기에서 뺐습니다.`
+  console.log(`[FavoriteView] ${city.name} ${added ? '담기' : '빼기'}`)
 }
 </script>
 
@@ -132,6 +130,7 @@ const handleToggleFavorite = (city) => {
           :key="city.id"
           :city-item="city"
           :hot-temp="HOT_TEMP"
+          :blaze-temp="BLAZE_TEMP"
           :is-favorite="favoriteStore.isFavorite(city.id)"
           @select-card="handleSelectCard"
           @click-detail="handleClickDetail"
@@ -139,11 +138,6 @@ const handleToggleFavorite = (city) => {
         />
       </ul>
     </BaseDashboardCard>
-
-    <p class="status-bar">
-      <span class="status-dot" aria-hidden="true"></span>
-      {{ statusInfo }}
-    </p>
   </div>
 </template>
 
@@ -244,36 +238,15 @@ const handleToggleFavorite = (city) => {
   border-color: var(--accent);
 }
 
+/* 목록 화면과 같은 카드를 쓰므로 가로 스크롤도 똑같이 맞춘다 */
 .card-list {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
-  padding: 0;
+  padding: 4px 2px 12px;
   list-style: none;
-}
-
-.status-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  padding: 14px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent-ink);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid var(--surface-line);
-  border-radius: 14px;
-  box-shadow: var(--shadow-md);
-}
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(59, 111, 212, 0.16);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
 }
 </style>

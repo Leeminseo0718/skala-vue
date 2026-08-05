@@ -22,35 +22,50 @@ const favoriteStore = useFavoriteStore()
  */
 const isHomeActive = computed(() => route.path === '/' || route.path.startsWith('/weather'))
 const isFavoriteActive = computed(() => route.path === '/favorites')
+
+/**
+ * 상세 화면(/weather/:cityId)은 '몰입 모드'로 띄운다.
+ *
+ * 랜드마크 사진이 화면 전체를 덮고 그 지역 날씨만 보이게 하려는 것이라,
+ * 여기서 공통 머리말·내비게이션·푸터를 아예 빼고 폭 제한도 풀어 준다.
+ * (돌아가는 길은 상세 화면 안의 '목록으로' 버튼이 맡는다.)
+ */
+const isImmersive = computed(() => route.path.startsWith('/weather/'))
 </script>
 
 <template>
-  <div class="app-shell">
-    <header class="app-header">
-      <h1>지역별 날씨</h1>
-    </header>
+  <div class="app-shell" :class="{ immersive: isImmersive }">
+    <!-- 몰입 모드(상세 화면)에서는 공통 껍데기를 통째로 걷어낸다 -->
+    <template v-if="!isImmersive">
+      <header class="app-header">
+        <h1>지역별 날씨</h1>
+      </header>
 
-    <!-- RouterLink 는 <a> 로 바뀌지만 새로고침 없이 주소만 바꾼다.
-         활성 표시는 위 computed 로 직접 제어한다. -->
-    <nav class="nav-bar">
-      <RouterLink to="/" class="nav-item" :class="{ 'is-active': isHomeActive }">
-        🌦️ 날씨 목록
-      </RouterLink>
-      <RouterLink to="/favorites" class="nav-item" :class="{ 'is-active': isFavoriteActive }">
-        <span class="star" aria-hidden="true">★</span> 즐겨찾기
-        <!-- 담은 게 없으면 배지 자체를 숨긴다. 자주 켜고 꺼지므로 v-show -->
-        <span v-show="favoriteStore.favoriteCount > 0" class="badge">
-          {{ favoriteStore.favoriteCount }}
-        </span>
-      </RouterLink>
-    </nav>
+      <!-- RouterLink 는 <a> 로 바뀌지만 새로고침 없이 주소만 바꾼다.
+           활성 표시는 위 computed 로 직접 제어한다. -->
+      <nav class="nav-bar">
+        <RouterLink to="/" class="nav-item" :class="{ 'is-active': isHomeActive }">
+          🌦️ 날씨 목록
+        </RouterLink>
+        <RouterLink to="/favorites" class="nav-item" :class="{ 'is-active': isFavoriteActive }">
+          <span class="star" aria-hidden="true">★</span> 즐겨찾기
+          <!-- 담은 게 없으면 배지 자체를 숨긴다. 자주 켜고 꺼지므로 v-show -->
+          <span v-show="favoriteStore.favoriteCount > 0" class="badge">
+            {{ favoriteStore.favoriteCount }}
+          </span>
+        </RouterLink>
+      </nav>
+    </template>
 
     <!-- 주소에 맞는 화면이 이 자리에 갈아 끼워진다 -->
     <main>
       <RouterView />
     </main>
 
-    <footer class="app-footer">Vue 3 · Vite</footer>
+    <footer v-if="!isImmersive" class="app-footer">
+      <p>SKALA Vue.js 종합과제</p>
+      <p>© 2026 minseo</p>
+    </footer>
   </div>
 </template>
 
@@ -59,6 +74,12 @@ const isFavoriteActive = computed(() => route.path === '/favorites')
   max-width: 680px;
   margin: 0 auto;
   padding: 56px 0 0;
+}
+
+/* 몰입 모드: 상세 화면이 스스로 폭과 여백을 정하도록 제한을 푼다 */
+.app-shell.immersive {
+  max-width: none;
+  padding: 0;
 }
 
 /* 헤더는 카드 밖에 그대로 노출시켜, 배경 위에 떠 있는 느낌으로 둔다 */

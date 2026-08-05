@@ -123,3 +123,6 @@ export function findCityById(cityId) {
 
 // 더움/선선함을 가르는 기준 온도. 목록·상세가 같은 값을 봐야 해서 여기에 둔다.
 export const HOT_TEMP = 25
+
+// 이 온도를 넘으면 카드에 불길 효과를 준다. '더움'보다 한 단계 위라는 뜻.
+export const BLAZE_TEMP = 30
