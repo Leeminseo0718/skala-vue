@@ -42,6 +42,11 @@ __screenshots__/
 # Claude Code 로컬 설정 (개인 경로가 담겨 있어 제외)
 .claude
 
+# 강의 자료 (SK AX 저작물 — Public 저장소에 올리면 안 됨)
+# 프로젝트 폴더에 두더라도 커밋에 딸려 가지 않도록 막는다
+*.pdf
+화면.jpeg
+
 # 환경 변수 (3일차 OpenWeatherMap API Key)
 .env
 .env.local

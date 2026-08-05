@@ -56,6 +56,9 @@ defineProps({
 
 .panel-head h3 {
   margin: 0;
+  /* 오른쪽 슬롯(정렬 상자 등)이 넓어져도 제목이 줄바꿈되지 않게 한다 */
+  flex-shrink: 0;
+  white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.02em;

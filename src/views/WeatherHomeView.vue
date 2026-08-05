@@ -201,46 +201,75 @@ const handleToggleFavorite = (city) => {
 </script>
 
 <template>
+  <!-- 왼쪽에 검색, 오른쪽에 날씨 현황을 두는 2단 배치 -->
   <div class="dashboard">
     <!-- 기본 슬롯에 SearchBar 를 주입 -->
-    <BaseDashboardCard>
+    <BaseDashboardCard class="col-search" title="도시 검색">
       <SearchBar
         :query="searchQuery"
         @update-query="handleUpdateQuery"
         @composing-change="handleComposingChange"
         @search-submit="handleSearchSubmit"
       />
+
+      <!-- 검색 결과 요약은 검색 칸 바로 아래가 자연스럽다 -->
+      <dl class="summary">
+        <div class="summary-row">
+          <dt>검색 결과</dt>
+          <dd>{{ filteredWeatherList.length }} / {{ weatherList.length }}개 지역</dd>
+        </div>
+        <div class="summary-row">
+          <dt>즐겨찾기</dt>
+          <dd>{{ favoriteStore.favoriteCount }}개</dd>
+        </div>
+      </dl>
     </BaseDashboardCard>
 
     <!-- 이름 있는 슬롯(head-meta)에는 정렬 UI 를, 기본 슬롯에는 카드 목록을 주입 -->
-    <BaseDashboardCard title="지역별 날씨 현황">
+    <BaseDashboardCard class="col-list" title="지역별 날씨 현황">
       <template #head-meta>
-        <!-- v-model 로 sortKey 와 묶는다. 값이 바뀌면 computed 가 알아서 다시 정렬한다. -->
-        <select v-model="sortKey" class="sort-select" aria-label="정렬 기준">
-          <option v-for="option in SORT_OPTIONS" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
+        <!-- Element Plus 선택 상자. v-model 로 sortKey 와 묶여 있어
+             값이 바뀌면 computed 가 알아서 다시 정렬한다. -->
+        <el-select v-model="sortKey" size="small" class="sort-select" aria-label="정렬 기준">
+          <el-option
+            v-for="option in SORT_OPTIONS"
+            :key="option.value"
+            :label="option.label"
+            :value="option.value"
+          />
+        </el-select>
       </template>
 
-      <p class="list-meta">
-        <!-- 원본 대비 몇 건이 걸렸는지 같이 보여 주면 computed 가 도는 게 눈에 보인다 -->
-        <span>{{ filteredWeatherList.length }} / {{ weatherList.length }}개 지역</span>
-        <!-- 즐겨찾기 개수는 자주 켜고 꺼서, DOM 을 부수고 짓는 v-if 보다 감추는 v-show 가 맞다 -->
-        <span v-show="favoriteStore.favoriteCount > 0" class="fav-count">
-          ★ 즐겨찾기 {{ favoriteStore.favoriteCount }}개
-        </span>
-        <!-- 로딩도 잠깐 켜졌다 꺼지는 표시라 v-show -->
-        <span v-show="isLoading" class="loading">실시간 날씨 불러오는 중…</span>
-      </p>
+      <!-- 로딩은 잠깐 켜졌다 꺼지는 표시라 v-show -->
+      <el-alert
+        v-show="isLoading"
+        title="실시간 날씨를 불러오는 중입니다"
+        type="info"
+        :closable="false"
+        show-icon
+        class="notice"
+      />
 
-      <p v-if="apiErrorMessage" class="api-notice">{{ apiErrorMessage }}</p>
+      <!-- API 가 실패해도 저장된 값으로 화면은 유지되므로 경고 수준으로만 알린다 -->
+      <el-alert
+        v-if="apiErrorMessage"
+        :title="apiErrorMessage"
+        type="warning"
+        :closable="false"
+        show-icon
+        class="notice"
+      />
 
       <!-- 검색 결과가 없을 때 안내 -->
-      <p v-if="isEmptyResult" class="empty">
-        <template v-if="isComposing">한글을 입력하는 중입니다…</template>
-        <template v-else>'{{ searchQuery.trim() }}' 와 일치하는 도시가 없습니다.</template>
-      </p>
+      <el-empty
+        v-if="isEmptyResult"
+        :description="
+          isComposing
+            ? '한글을 입력하는 중입니다…'
+            : `'${searchQuery.trim()}' 와 일치하는 도시가 없습니다.`
+        "
+        :image-size="70"
+      />
 
       <!-- 검색 → 정렬을 거친 최종 목록.
            카드가 가로로 넘어가므로 이 컨테이너 안에서만 옆으로 스크롤된다. -->
@@ -264,79 +293,71 @@ const handleToggleFavorite = (city) => {
 <style scoped>
 /* 패널·검색바·카드 디자인은 각 자식 컴포넌트의 <style scoped> 로 옮겨 갔고,
    여기에는 '배치'와 이 화면이 직접 그리는 요소만 남는다. */
+
+/*
+ * 왼쪽 검색(고정 폭) + 오른쪽 날씨 현황(남는 폭 전부).
+ * align-items: start 를 줘야 두 칸의 높이가 서로를 따라가지 않는다.
+ */
 .dashboard {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
   gap: 14px;
+  align-items: start;
 }
 
-/* 정렬 select — 패널 머리말 오른쪽에 앉는다 */
-.sort-select {
-  padding: 5px 9px;
-  font-size: 12px;
-  font-family: inherit;
-  color: var(--ink);
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  cursor: pointer;
+/* 오른쪽 칸이 카드 목록을 가로 스크롤시키려면 폭이 0까지 줄 수 있어야 한다.
+   (grid 항목의 기본 min-width:auto 를 풀지 않으면 칸이 내용만큼 벌어진다) */
+.col-list {
+  min-width: 0;
 }
 
-.sort-select:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+/* 검색 아래 요약 (검색 결과 · 즐겨찾기 개수) */
+.summary {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
 }
 
-/* 목록 위 요약 줄 (건수 · 즐겨찾기 개수) */
-.list-meta {
+.summary-row {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 10px;
-  margin: 0 2px 12px;
+}
+
+.summary-row + .summary-row {
+  margin-top: 8px;
+}
+
+.summary dt {
   font-size: 12px;
   color: var(--ink-dim);
+}
+
+.summary dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
-.fav-count {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--star-bg);
-  border: 1px solid var(--star-line);
-  color: var(--star-ink);
-  font-weight: 600;
+/* Element Plus 선택 상자는 기본값이 100% 라 머리말 제목을 밀어낸다. 폭을 고정한다. */
+.sort-select {
+  width: 130px;
+  flex-shrink: 0;
 }
 
-.loading {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--accent-bg);
-  border: 1px solid var(--accent-line);
-  color: var(--accent-ink);
-  font-weight: 600;
+/* Element Plus 안내 막대 — 목록 위에 한 줄로만 끼운다 */
+.notice {
+  margin-bottom: 12px;
 }
 
-/* API 실패 안내 — 화면을 막지 않고 줄 하나로만 알린다 */
-.api-notice {
-  margin: 0 0 12px;
-  padding: 10px 14px;
-  font-size: 12px;
-  color: var(--hot-ink);
-  background: var(--hot-bg);
-  border: 1px solid var(--hot-line);
-  border-radius: 12px;
-}
-
-/* 검색 결과가 없을 때 자리를 지켜 주는 안내 박스 */
-.empty {
-  margin: 0;
-  padding: 28px 16px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--ink-dim);
-  background: var(--card);
-  border: 1px dashed var(--line-strong);
-  border-radius: 14px;
+/* 좁은 화면에서는 검색이 위, 목록이 아래로 한 줄씩 쌓인다 */
+@media (max-width: 860px) {
+  .dashboard {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /*

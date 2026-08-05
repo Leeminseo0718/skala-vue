@@ -1,11 +1,16 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
+import SkyBackground from '@/components/exercise/SkyBackground.vue'
 import { useFavoriteStore } from '@/stores/favoriteStore'
 
-// 4단계부터 화면은 라우터가 갈아 끼운다.
-// App.vue 는 어느 화면에서나 공통으로 보이는 머리말·내비게이션만 들고 있는다.
-
+/**
+ * 앱 껍데기
+ *
+ * 화면은 라우터가 갈아 끼우고, 여기에는 어느 화면에서나 공통인 것만 둔다.
+ *  - 시간대별 하늘 배경
+ *  - 제목과 내비게이션
+ */
 const route = useRoute()
 
 // 즐겨찾기 개수를 배지로 띄우려고 스토어를 본다.
@@ -17,8 +22,7 @@ const favoriteStore = useFavoriteStore()
  *
  * RouterLink 가 자동으로 붙여 주는 클래스를 그대로 쓰면 어긋난다.
  *  - router-link-active       : '/' 는 모든 경로의 접두사라 다른 경로에서도 같이 켜진다.
- *  - router-link-exact-active : 정확히 '/' 일 때만 켜져서, 상세(/weather/:cityId)에 들어가면 꺼진다.
- * 상세 페이지는 목록의 하위 화면이니 그때도 켜져 있는 게 맞다.
+ *  - router-link-exact-active : 정확히 '/' 일 때만 켜져서 상세 화면에서 꺼진다.
  */
 const isHomeActive = computed(() => route.path === '/' || route.path.startsWith('/weather'))
 const isFavoriteActive = computed(() => route.path === '/favorites')
@@ -27,22 +31,21 @@ const isFavoriteActive = computed(() => route.path === '/favorites')
  * 상세 화면(/weather/:cityId)은 '몰입 모드'로 띄운다.
  *
  * 랜드마크 사진이 화면 전체를 덮고 그 지역 날씨만 보이게 하려는 것이라,
- * 여기서 공통 머리말·내비게이션·푸터를 아예 빼고 폭 제한도 풀어 준다.
- * (돌아가는 길은 상세 화면 안의 '목록으로' 버튼이 맡는다.)
+ * 공통 머리말·내비게이션·푸터를 아예 빼고 폭 제한도 풀어 준다.
+ * (돌아가는 길은 상세 화면 안의 '목록' 버튼이 맡는다.)
  */
 const isImmersive = computed(() => route.path.startsWith('/weather/'))
 </script>
 
 <template>
-  <div class="app-shell" :class="{ immersive: isImmersive }">
-    <!-- 몰입 모드(상세 화면)에서는 공통 껍데기를 통째로 걷어낸다 -->
-    <template v-if="!isImmersive">
-      <header class="app-header">
-        <h1>지역별 날씨</h1>
-      </header>
+  <!-- 몰입 모드에서는 상세 화면이 자기 배경(랜드마크)을 깔기 때문에 하늘을 걷어낸다 -->
+  <SkyBackground v-if="!isImmersive" />
 
-      <!-- RouterLink 는 <a> 로 바뀌지만 새로고침 없이 주소만 바꾼다.
-           활성 표시는 위 computed 로 직접 제어한다. -->
+  <div class="app-shell" :class="{ immersive: isImmersive }">
+    <!-- 제목과 내비게이션을 한 줄에 나란히 둔다 -->
+    <header v-if="!isImmersive" class="app-header">
+      <h1>지역별 날씨</h1>
+
       <nav class="nav-bar">
         <RouterLink to="/" class="nav-item" :class="{ 'is-active': isHomeActive }">
           🌦️ 날씨 목록
@@ -55,7 +58,7 @@ const isImmersive = computed(() => route.path.startsWith('/weather/'))
           </span>
         </RouterLink>
       </nav>
-    </template>
+    </header>
 
     <!-- 주소에 맞는 화면이 이 자리에 갈아 끼워진다 -->
     <main>
@@ -71,9 +74,9 @@ const isImmersive = computed(() => route.path.startsWith('/weather/'))
 
 <style scoped>
 .app-shell {
-  max-width: 680px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 56px 0 0;
+  padding: 40px 0 0;
 }
 
 /* 몰입 모드: 상세 화면이 스스로 폭과 여백을 정하도록 제한을 푼다 */
@@ -82,9 +85,14 @@ const isImmersive = computed(() => route.path.startsWith('/weather/'))
   padding: 0;
 }
 
-/* 헤더는 카드 밖에 그대로 노출시켜, 배경 위에 떠 있는 느낌으로 둔다 */
+/* ── 머리말: 제목(왼쪽) + 내비게이션(오른쪽) ───────────── */
 .app-header {
-  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
   padding-left: 4px;
 }
 
@@ -96,12 +104,10 @@ const isImmersive = computed(() => route.path.startsWith('/weather/'))
   color: var(--ink);
 }
 
-/* ── 내비게이션 바 ─────────────────────────────────────── */
 .nav-bar {
   display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-  padding: 6px;
+  gap: 6px;
+  padding: 5px;
   background: var(--surface);
   border: 1px solid var(--surface-line);
   border-radius: 14px;
@@ -112,15 +118,28 @@ const isImmersive = computed(() => route.path.startsWith('/weather/'))
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 9px 14px;
+  padding: 8px 13px;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
+  white-space: nowrap;
   color: var(--ink-dim);
   border-radius: 10px;
   transition:
     background 0.2s ease,
     color 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--accent-ink);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* 활성 상태는 RouterLink 자동 클래스 대신 위 computed 가 붙여 주는 .is-active 로 판단한다 */
+.nav-item.is-active {
+  color: var(--accent-ink);
+  background: var(--accent-bg);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
 }
 
 /* 별은 즐겨찾기 색으로 — 활성 여부와 상관없이 항상 같은 의미를 갖는다 */
@@ -142,22 +161,22 @@ const isImmersive = computed(() => route.path.startsWith('/weather/'))
   font-variant-numeric: tabular-nums;
 }
 
-.nav-item:hover {
-  color: var(--accent-ink);
-  background: rgba(255, 255, 255, 0.6);
-}
-
-/* 활성 상태는 RouterLink 자동 클래스 대신 위 computed 가 붙여 주는 .is-active 로 판단한다 */
-.nav-item.is-active {
-  color: var(--accent-ink);
-  background: var(--accent-bg);
-  box-shadow: inset 0 0 0 1px var(--accent-line);
-}
-
 .app-footer {
   margin-top: 28px;
   padding-left: 4px;
   font-size: 12px;
+  line-height: 1.7;
   color: var(--ink-on-sky);
+}
+
+.app-footer p {
+  margin: 0;
+}
+
+/* 좁은 화면에서는 제목 아래로 내비게이션이 내려간다 */
+@media (max-width: 720px) {
+  .app-header {
+    justify-content: flex-start;
+  }
 }
 </style>
